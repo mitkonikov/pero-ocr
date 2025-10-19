@@ -329,11 +329,37 @@ class LayoutExtractorYolo(object):
         self.line_categories = config_get_list(config, key='LINE_CATEGORIES', fallback=[])
         self.image_size = self.get_image_size(config)
 
+        huggingface_repo_id = config_get_list(config, key='HUGGINGFACE_REPO_ID', fallback=None)
+        huggingface_filename = config_get_list(config, key='HUGGINGFACE_FILENAME', fallback=None)
+        self.use_doclayout_yolo = config.getboolean('USE_DOCLAYOUT_YOLO')
+
+        if huggingface_repo_id and huggingface_filename:
+            try:
+                from huggingface_hub import hf_hub_download
+            except ImportError:
+                raise ImportError("To download model from Huggingface Hub, you need to install huggingface_hub library. "
+                                  "You can do it by running 'pip install huggingface-hub'.")
+            logger.info("Using model from Hugging Face Hub. MODEL_PATH in config will be ignored.")
+            model_path = hf_hub_download(repo_id=huggingface_repo_id,
+                                         filename=huggingface_filename)
+            if not model_path:
+                raise ValueError("Failed to download model from Hugging Face Hub. "
+                                 "Please check HUGGINGFACE_REPO_ID and HUGGINGFACE_FILENAME in config.")
+            else:
+                logger.info("Model can be found at:", model_path)
+            if not self.use_doclayout_yolo:
+                logger.warning("HUGGINGFACE_REPO_ID and HUGGINGFACE_FILENAME are set, but USE_DOCLAYOUT_YOLO is False. "
+                               "If the model is not compatible with Ultralytics, set the USE_DOCLAYOUT_YOLO to True.")
+        else:
+            logger.info("Using model from MODEL_PATH in config.")
+            model_path = compose_path(config['MODEL_PATH'], config_path)
+
         self.engine = LayoutEngineYolo(
-            model_path=compose_path(config['MODEL_PATH'], config_path),
+            model_path=model_path,
             device=self.device,
             detection_threshold=config.getfloat('DETECTION_THRESHOLD'),
-            image_size=self.image_size
+            image_size=self.image_size,
+            use_doclayout_yolo=self.use_doclayout_yolo
         )
 
     def process_page(self, img, page_layout: PageLayout):
@@ -354,7 +380,7 @@ class LayoutExtractorYolo(object):
             height = np.floor(np.array([baseline_y - y_min, y_max - baseline_y]))
 
             category = result.names[class_id]
-            if self.categories and category not in self.categories:
+            if self.categories and category not in self.categories: # skip unwanted categories
                 continue
 
             region = RegionLayout(id_str, polygon, category=category, detection_confidence=conf)

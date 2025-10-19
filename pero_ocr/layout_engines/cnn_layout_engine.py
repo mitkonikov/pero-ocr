@@ -377,11 +377,20 @@ class LayoutEngine(object):
 class LayoutEngineYolo(object):
     def __init__(self, model_path, device,
                  image_size: Union[int, Tuple[int, int], None] = None,
-                 detection_threshold=0.2):
-        from ultralytics import YOLO  # import here, only if needed
-        # (ultralytics need different numpy version than some specific version installed on pero-ocr machines)
+                 detection_threshold=0.2,
+                 use_doclayout_yolo=False):
+        
+        if use_doclayout_yolo:
+            try:
+                from doclayout_yolo import YOLOv10
+            except ImportError:
+                raise ImportError('doclayout_yolo package is not installed. Please install it to use the USE_DOCLAYOUT_YOLO flag.')
+            self.yolo_net = YOLOv10(model_path).to(device)
+        else:
+            from ultralytics import YOLO  # import here, only if needed
+            # (ultralytics need different numpy version than some specific version installed on pero-ocr machines)
+            self.yolo_net = YOLO(model_path).to(device)
 
-        self.yolo_net = YOLO(model_path).to(device)
         self.detection_threshold = detection_threshold
         self.image_size = image_size  # height or (height, width)
 
