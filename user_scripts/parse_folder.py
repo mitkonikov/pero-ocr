@@ -377,7 +377,7 @@ def main():
             results.append(computator(image_file_name, file_id, index, len(ids_to_process)))
 
     if args.output_transcriptions_file_path is not None:
-        with open(args.output_transcriptions_file_path, 'w') as f:
+        with open(args.output_transcriptions_file_path, 'w', encoding='utf-8') as f:
             for page_lines in results:
                 print('\n'.join(page_lines), file=f)
 
