@@ -133,3 +133,6 @@ ENV/
 *.del
 
 *.swp
+
+*.lock
+.vscode
