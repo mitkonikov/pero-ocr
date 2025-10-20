@@ -24,6 +24,20 @@ General layout analysis (printed and handwritten) with european printed OCR spec
 ## Command line application
 A command line application is `./user_scripts/parse_folder.py.` It is able to process images in a directory using an OCR engine. It can render detected lines in an image and provide document content in Page XML and ALTO XML formats. Additionally, it is able to crop all text lines as rectangular regions of normalized size and save them into separate image files.
 
+### Running the command line application
+Assuming that you have downloaded the config file from the link given [above](https://nextcloud.fit.vutbr.cz/s/NtAbHTNkZFpapdJ) and have the set of images for processing in the folder `./data/test_input`, relative to the root of the repository, you can run the following command to process them:
+```sh
+python ./user_scripts/parse_folder.py \
+     --config ./data/pero_eu_cz_print_newspapers_2022-09-26/config.ini \
+     --input-image-path ./data/test_input/ \
+     --output-xml-path ./data/test_output \
+     --output-render-path ./data/test_render \
+     --output-transcriptions-file-path ./data/transcriptions.txt
+```
+
+The command outputs `xml` files with all of the layout and OCR data, outputs visualizations of the bounding boxes on top of the input images
+and also a transcriptions file with all of the lines of text marked with `page`, `region` and `line` keys.
+
 ## Running command line application in container
 <a name="running-command-line-application-in-container"></a>
 A docker container can be built from the sourcecode to run scripts and programs based on the pero-ocr. Example of running the `parse_folder.py` script to generate page-xml files for images in input directory:
