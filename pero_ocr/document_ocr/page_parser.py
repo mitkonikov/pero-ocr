@@ -196,7 +196,11 @@ class TextlineExtractorSimple(object):
         for region in page_layout.regions:
             b_list, h_list, t_list = self.engine.detect_lines(
                 img, region.polygon)
-            for line_num, (baseline, heights, textline) in enumerate(zip(b_list, h_list, t_list)):
+            
+            lines = list(zip(b_list, h_list, t_list))
+            sorted_lines = sorted(lines, key = lambda x : x[0].mean(axis=0)[1])
+
+            for line_num, (baseline, heights, textline) in enumerate(sorted_lines):
                 new_textline = TextLine(
                     id='{}-l{:03d}'.format(region.id, line_num+1),
                     baseline=baseline,
