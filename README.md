@@ -18,15 +18,14 @@ For the current shell session, this can be achieved by setting ``PYTHONPATH`` up
 export PYTHONPATH=/path/to/the/repo:$PYTHONPATH
 ```
 
-As a more permanent solution, a very simplistic `setup.py` is prepared:
+As a more permanent solution, you can install pero-ocr using pip.
+You can install it either from pypi (recommended):
 ```
-python setup.py develop
+pip install pero-ocr
 ```
-Beware that the `setup.py` does not promise to bring all the required stuff, e.g. setting CUDA up is up to you.
-
-Pero can be later removed from your Python distribution by running:
+or directly from the repository:
 ```
-python setup.py develop --uninstall
+pip install .
 ```
 
 ## Available models
